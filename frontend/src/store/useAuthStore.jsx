@@ -5,16 +5,16 @@ export const useAuthStore = create((set) => ({
     token: localStorage.getItem('bank_game_token') || null,
     isLoggedIn: !!localStorage.getItem('bank_game_token'),
     profile: null,
-    
+
     login: async (username, password) => {
         try {
             // Реальный вызов к твоему Django бэкенду
             const data = await authApi.login(username, password);
             const token = data.access || data.token; // Зависит от того, как ты настроишь DRF (SimpleJWT vs TokenAuth)
-            
+
             localStorage.setItem('bank_game_token', token);
-            set({ 
-                token: token, 
+            set({
+                token: token,
                 isLoggedIn: true,
                 profile: data.user || { username, name: 'MTBank User' }
             });
@@ -22,8 +22,8 @@ export const useAuthStore = create((set) => ({
             // ФОЛЛБЕК ДЛЯ ХАКАТОНА: Если бэкенд упал или не готов, всё равно пускаем локально (для показа жюри)
             console.warn('API недоступно, используем хакатон-заглушку входа');
             localStorage.setItem('bank_game_token', 'demo_hackathon_token');
-            set({ 
-                token: 'demo_hackathon_token', 
+            set({
+                token: 'demo_hackathon_token',
                 isLoggedIn: true,
                 profile: { id: 1, username: username, name: 'Тестовый аккаунт' }
             });
@@ -34,10 +34,10 @@ export const useAuthStore = create((set) => ({
         try {
             const data = await authApi.register(email, username, password);
             const token = data.access || data.token;
-            
+
             localStorage.setItem('bank_game_token', token);
-            set({ 
-                token: token, 
+            set({
+                token: token,
                 isLoggedIn: true,
                 profile: data.user || { username, email }
             });
