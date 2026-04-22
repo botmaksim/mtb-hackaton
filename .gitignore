@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.env
+
+# База данных
+*.sqlite3
+
+# JS
+node_modules/
+dist/
