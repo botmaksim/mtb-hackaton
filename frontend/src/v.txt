@@ -1,0 +1,72 @@
+📦 mtbank-tycoon-frontend
+├── 📄 package.json              # Зависимости (react, zustand, axios, pixi.js, framer-motion)
+├── 📄 vite.config.js            # Настройки сборщика Vite
+├── 📄 .env                      # Переменные окружения (VITE_API_URL='https://...')
+│
+└── 📂 src/                      # 🌟 ИСХОДНЫЙ КОД
+    │
+    ├── 📄 main.jsx              # Точка входа в React (рендеринг в DOM)
+    ├── 📄 App.jsx               # Настройка роутинга (react-router) и глобальных провайдеров
+    ├── 📄 index.css             # Глобальные стили (сброс, шрифты, CSS-переменные банка)
+    │
+    ├── 📂 api/                  # 🌐 СЕТЕВОЙ СЛОЙ
+    │   ├── 📄 client.js         # Настройка Axios (базовый URL, токены, перехват 401 ошибки)
+    │   ├── 📄 authApi.js        # Авторизация через WebView МТБанка
+    │   ├── 📄 cityApi.js        # Игровые действия (построить, собрать, кейсы)
+    │   └── 📄 bankApi.js        # Банковские действия (синергия: кэшбэк, транзакции, плюшки)
+    │
+    ├── 📂 store/                # 🧠 ГЛОБАЛЬНОЕ СОСТОЯНИЕ (Zustand)
+    │   ├── 📄 useAuthStore.js   # Токен, статус входа, профиль игрока из банка
+    │   ├── 📄 usePlayerStore.js # Баланс (Коины, МТКоины, Энергия), уровень
+    │   └── 📄 useCityStore.js   # Координаты зданий на сетке, таймеры сбора прибыли
+    │
+    ├── 📂 assets/               # 🎨 СТАТИКА
+    │   ├── 📂 sprites/          # Текстуры для Canvas (изометрия зданий, земля, деревья)
+    │   ├── 📂 icons/            # Векторные SVG (иконки валют, лого МТБанка, крестики)
+    │   └── 📂 sounds/           # MP3/ОGG (клик, звон монет, барабан рулетки)
+    │
+    ├── 📂 game/                 # 🎮 ИГРОВОЙ ДВИЖОК (Canvas / WebGL / PixiJS)
+    │   │                        # Здесь НЕТ HTML-тегов, только графика!
+    │   ├── 📂 entities/         # Игровые объекты
+    │   │   ├── 📄 IsometricGrid.jsx # Сетка для расстановки
+    │   │   ├── 📄 Building.jsx      # Модель здания (спрайт + анимация монетки над ним)
+    │   │   └── 📄 Cloud.jsx         # Декор (плывущие облака для живости)
+    │   ├── 📂 systems/          # Игровая логика
+    │   │   ├── 📄 cameraZoom.js     # Логика свайпов и зума карты (Pan & Zoom)
+    │   │   └── 📄 offlineIncome.js  # Математика расчета прибыли, пока юзера не было
+    │   └── 📄 MainCityScene.jsx # Главный компонент-контейнер для Pixi.js <Stage>
+    │
+    └── 📂 ui/                   # 🖥️ ПОЛЬЗОВАТЕЛЬСКИЙ ИНТЕРФЕЙС (HTML/CSS поверх Canvas)
+        │
+        ├── 📂 components/       # 🧱 БАЗОВЫЕ UI-ЭЛЕМЕНТЫ (Глупые, переиспользуемые)
+        │   ├── 📄 Button.jsx    # Стандартная кнопка (с банковскими стилями)
+        │   ├── 📄 ModalBase.jsx # Контейнер для попапов (затемнение, крестик закрытия)
+        │   ├── 📄 CoinBadge.jsx # Плашка с иконкой монетки и числом
+        │   └── 📄 Loader.jsx    # Спиннер загрузки МТБанк
+        │
+        ├── 📂 features/         # 🧩 ФИЧИ (Бизнес-логика, умные модули)
+        │   │
+        │   ├── 📂 CityShop/             # Магазин зданий
+        │   │   ├── 📂 components/       # (BuildingCard, ShopModal)
+        │   │   ├── 📄 usePurchase.js    # Логика списания денег
+        │   │   └── 📄 index.js          # Фасад (export { ShopModal })
+        │   │
+        │   ├── 📂 GachaCases/           # Рулетка и Кейсы
+        │   │   ├── 📂 components/       # (Roulette, RewardPopup)
+        │   │   └── 📄 index.js
+        │   │
+        │   ├── 📂 SocialGrowth/         # Виральность: Друзья, Синдикаты, "Нападения"
+        │   │   ├── 📂 components/       # (Leaderboard, FriendList, InvestModal)
+        │   │   └── 📄 index.js
+        │   │
+        │   └── 📂 BankSynergy/          # ТЗ Win-Win: Прокачка реальной карты
+        │       ├── 📂 components/       # (PerksCatalog, SyncBtn)
+        │       └── 📄 index.js
+        │
+        └── 📂 screens/          # 📱 ГЛАВНЫЕ ЭКРАНЫ (Склеивают Фичи + UI + Game)
+            │
+            ├── 📄 EntryScreen.jsx   # Экран приветствия / Проверка токена / Загрузка ассетов
+            │
+            └── 📄 MainGameScreen.jsx# Главный экран. Содержит 2 слоя (Z-index):
+                                     #   - Слой 1: <MainCityScene /> (Canvas, в самом низу)
+                                     #   - Слой 2: HUD + Фичи из папки features/ (HTML, поверх игры)
