@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { usePlayerStore } from '../../store/usePlayerStrore';
+import { usePlayerStore } from '../../store/usePlayerStore';
 import { useCityStore } from '../../store/useCityStore';
 import { Button } from '../components/Button';
 import { ArrowLeft, RefreshCw, Zap, Trash2, Building, DollarSign } from 'lucide-react';

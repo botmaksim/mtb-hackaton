@@ -1,7 +1,7 @@
 import { ModalBase } from "../../components/ModalBase";
 import { Button } from "../../components/Button";
 import { useCityStore, BUILDING_CATALOG } from "../../../store/useCityStore";
-import { usePlayerStore } from "../../../store/usePlayerStrore";
+import { usePlayerStore } from "../../../store/usePlayerStore";
 import { MapPin, Hammer, ArrowUpCircle, Landmark, Users, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { cityApi } from "../../../api/cityApi";

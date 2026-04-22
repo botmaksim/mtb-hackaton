@@ -1,6 +1,6 @@
 import { ModalBase } from "../../components/ModalBase";
 import { Button } from "../../components/Button";
-import { usePlayerStore } from "../../../store/usePlayerStrore";
+import { usePlayerStore } from "../../../store/usePlayerStore";
 import { Trophy, CheckCircle2, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cityApi } from "../../../api/cityApi";

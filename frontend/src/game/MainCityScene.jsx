@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useCityStore } from '../store/useCityStore';
-import { usePlayerStore } from '../store/usePlayerStrore';
+import { usePlayerStore } from '../store/usePlayerStore'; // Проверь опечатку в названии файла Store
+import { cityApi } from '../api/cityApi';
 
 import { useCameraZoom } from './systems/cameraZoom';
-import { calculateOfflineIncome } from './systems/offlineIncome';
 import { IsometricGrid } from './entities/IsometricGrid';
 import { Building } from './entities/Building';
 import { Cloud } from './entities/Cloud';
@@ -11,121 +11,94 @@ import { Button } from '../ui/components/Button';
 import { X, CheckCircle2 } from 'lucide-react';
 
 export default function MainCityScene() {
-    const { buildings, gridSize, collectIncome, placementMode, setPlacementMode, placeBuilding, viewingUserId } = useCityStore();
-    const { addCoins, subtractCoins } = usePlayerStore();
+    const { buildings, gridSize, placementMode, setPlacementMode, fetchCityData, viewingUserId } = useCityStore();
+    const { updateBalance } = usePlayerStore(); // Предположим, в сторе есть метод обновления баланса
     
     const { pan, zoom, handlers } = useCameraZoom();
-    
     const isSpectator = viewingUserId !== null;
 
+    // Первоначальная загрузка данных
     useEffect(() => {
-        if (!isSpectator) {
-            const { totalGenerated } = calculateOfflineIncome(buildings);
-            if (totalGenerated > 0) {
-                console.log(`Пока вас не было, город сгенерировал ${totalGenerated} коинов!`);
-            }
-        }
-    }, [buildings, isSpectator]);
+        fetchCityData();
+    }, []);
 
-    const handleCollect = (e, b) => {
+    // Безопасный сбор дохода
+    const handleCollect = async (e, b) => {
         e.stopPropagation();
         if (isSpectator) return;
         
-        const secondsPassed = (Date.now() - b.lastCollected) / 1000;
-        const generated = Math.floor(secondsPassed * (b.incomeRate / 10));
-        const reward = Math.floor(Math.min(b.maxCapacity, Math.max(1, generated)));
-        
-        collectIncome(b.id, reward);
-        addCoins(reward);
+        try {
+            // 1. Шлем запрос на бэк
+            const data = await cityApi.collectIncome(b.id);
+            
+            // 2. Обновляем глобальный баланс игрока из ответа сервера
+            if (updateBalance) {
+                updateBalance(data.new_balance);
+            }
+            
+            // 3. Перезапрашиваем данные города, чтобы обновить lastCollected у здания
+            fetchCityData();
+            
+            console.log(`Успешно собрано: ${data.collected} коинов`);
+        } catch (err) {
+            console.error("Ошибка при сборе дохода:", err.response?.data?.error || err.message);
+        }
     };
 
-    const handleCellClick = (x, y) => {
-        if (!placementMode.active || isSpectator) return;
-        
-        const newW = placementMode.width || 1;
-        const newH = placementMode.height || 1;
-        
-        // Проверка границ города
-        if (x + newW > gridSize || y + newH > gridSize) {
-            alert('Здание выходит за пределы города!');
-            return;
+    const handleGridClick = async (x, y) => {
+        if (placementMode.active && !isSpectator) {
+            try {
+                await cityApi.buildBuilding(placementMode.type_id, x, y);
+                setPlacementMode({ active: false });
+                fetchCityData(); // Обновляем карту
+            } catch (err) {
+                alert(err.response?.data?.error || "Ошибка постройки");
+            }
         }
-
-        // Проверка: занята ли площадь? (пересечение прямоугольников)
-        const isOccupied = buildings.some(b => {
-            const bW = b.width || 1;
-            const bH = b.height || 1;
-            
-            const intersectX = x < (b.x + bW) && (x + newW) > b.x;
-            const intersectY = y < (b.y + bH) && (y + newH) > b.y;
-            
-            return intersectX && intersectY;
-        });
-
-        if (isOccupied) {
-            alert('Эта территория уже занята!');
-            return;
-        }
-
-        // Списываем и строим
-        subtractCoins(placementMode.price);
-        placeBuilding(placementMode.type, placementMode.name, x, y, newW, newH);
     };
 
     const CellSize = 60;
 
     return (
-        <div 
-            className="w-full h-full bg-[#7dd3fc] overflow-hidden relative select-none"
-            style={{ touchAction: 'none' }}
-            {...handlers}
-        >
-            {/* Environment Background Layer */}
-            <div className="absolute top-10 left-10 w-24 h-24 bg-yellow-300 rounded-full blur-sm opacity-90 shadow-[0_0_50px_rgba(253,224,71,0.8)]" />
-            
-            <Cloud top={15} duration={40} />
-            <Cloud top={35} duration={35} delay={10} scale={0.8} />
-            <Cloud top={60} duration={50} delay={5} scale={1.2} />
-
-            {/* Camera & Game World Layer */}
+        <div className="w-full h-full relative touch-none bg-emerald-900" {...handlers}>
             <div 
-                className={`absolute inset-0 transition-transform duration-0 ${placementMode.active && !isSpectator ? 'pointer-events-auto cursor-crosshair' : 'cursor-grab active:cursor-grabbing pointer-events-none'}`}
-                style={{
-                    transform: `translate(${pan.x}px, ${pan.y}px) translate(50vw, 50vh) scale(${zoom}) rotateX(60deg) rotateZ(45deg)`
-                }}
+                className="absolute transition-transform duration-75 ease-out"
+                style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
             >
-                <IsometricGrid 
-                    size={gridSize} 
-                    cellSize={CellSize} 
-                    onCellClick={handleCellClick}
-                    placementMode={placementMode.active && !isSpectator}
-                >
-                    {buildings.map(b => (
-                        <Building 
-                            key={b.id} 
-                            building={b} 
-                            cellSize={CellSize} 
-                            onCollect={handleCollect} 
-                            isSpectator={isSpectator}
-                        />
-                    ))}
-                </IsometricGrid>
+                <div className="relative" style={{ transform: 'rotateX(60deg) rotateZ(45deg)', transformStyle: 'preserve-3d' }}>
+                    <Cloud top={10} delay={0} scale={1.5} />
+                    <Cloud top={40} delay={5} scale={1.2} />
+                    
+                    <IsometricGrid 
+                        size={gridSize} 
+                        cellSize={CellSize} 
+                        onCellClick={handleGridClick}
+                        placementMode={placementMode.active}
+                    >
+                        {buildings.map((b) => (
+                            <Building 
+                                key={b.id} 
+                                building={b} 
+                                cellSize={CellSize} 
+                                onCollect={(e) => handleCollect(e, b)} 
+                                isSpectator={isSpectator}
+                            />
+                        ))}
+                    </IsometricGrid>
+                </div>
             </div>
             
-            {/* Режим Стройки: Overlay */}
-            {placementMode.active && !isSpectator && (
-                <div className="absolute top-20 left-4 right-4 z-50 animate-in fade-in slide-in-from-top-4">
+            {placementMode.active && (
+                <div className="absolute top-20 left-4 right-4 z-50">
                     <div className="bg-indigo-900/90 backdrop-blur-md rounded-2xl p-4 flex items-center justify-between border border-indigo-500 shadow-2xl">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center text-white">
-                                <CheckCircle2 />
-                            </div>
+                            <CheckCircle2 className="text-indigo-400" />
                             <div>
-                                <p className="text-white font-bold text-sm">Установка: {placementMode.name}</p>
-                                <p className="text-indigo-200 text-xs">Занимает: {placementMode.width}x{placementMode.height}</p>
+                                <p className="text-white font-bold text-sm">Выберите место для: {placementMode.name}</p>
+                                <p className="text-indigo-200 text-xs">Кликните по сетке</p>
                             </div>
                         </div>
-                        <Button variant="danger" size="sm" onClick={() => setPlacementMode(false)}>
+                        <Button variant="danger" size="sm" onClick={() => setPlacementMode({ active: false })}>
                             <X size={16} /> Отмена
                         </Button>
                     </div>

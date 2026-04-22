@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { usePlayerStore } from "../../../store/usePlayerStrore";
+import { usePlayerStore } from "../../../store/usePlayerStore";
 import { RefreshCcw } from "lucide-react";
 
 export function SyncBtn() {

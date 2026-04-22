@@ -4,9 +4,12 @@ from .models import UserBuilding, Profile, BuildingType
 
 class UserSerializer(serializers.ModelSerializer):
     level = serializers.IntegerField(source='profile.level', read_only=True)
+    coins = serializers.IntegerField(source='profile.coins', read_only=True)
+    mtCoins = serializers.IntegerField(source='profile.mtCoins', read_only=True)
+    
     class Meta:
         model = User
-        fields = ['id', 'username', 'level']
+        fields = ['id', 'username', 'level', 'coins', 'mtCoins']
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -16,7 +19,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
-        Profile.objects.create(user=user) 
         return user
 
 class UserBuildingSerializer(serializers.ModelSerializer):

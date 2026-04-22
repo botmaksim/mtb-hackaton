@@ -1,6 +1,6 @@
 import { ModalBase } from "../../components/ModalBase";
 import { Button } from "../../components/Button";
-import { usePlayerStore } from "../../../store/usePlayerStrore";
+import { usePlayerStore } from "../../../store/usePlayerStore";
 import { CreditCard, Rocket, Coffee, ArrowRightLeft, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { cityApi } from "../../../api/cityApi";

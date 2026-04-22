@@ -3,7 +3,7 @@ import { Button } from "../../components/Button";
 import { ShieldAlert, TrendingUp, Loader2, Eye, Search } from "lucide-react";
 import { socialApi } from "../../../api/socialApi";
 import { useState, useEffect } from "react";
-import { usePlayerStore } from "../../../store/usePlayerStrore";
+import { usePlayerStore } from "../../../store/usePlayerStore";
 import { useCityStore } from "../../../store/useCityStore";
 
 export function Leaderboard({ isOpen, onClose }) {

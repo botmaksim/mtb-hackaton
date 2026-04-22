@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ModalBase } from "../../components/ModalBase";
 import { Button } from "../../components/Button";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePlayerStore } from "../../../store/usePlayerStrore";
+import { usePlayerStore } from "../../../store/usePlayerStore";
 import { Sparkles, PackageOpen, BatteryCharging, Zap, Ticket } from "lucide-react";
 import { cityApi } from "../../../api/cityApi";
 

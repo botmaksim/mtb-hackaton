@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ModalBase } from "../../components/ModalBase";
 import { Button } from "../../components/Button";
-import { usePlayerStore } from "../../../store/usePlayerStrore";
+import { usePlayerStore } from "../../../store/usePlayerStore";
 import { ArrowRightLeft, Loader2 } from "lucide-react";
 import { marketApi } from "../../../api/marketApi";
 

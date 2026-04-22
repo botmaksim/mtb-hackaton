@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
-import { usePlayerStore } from '../../store/usePlayerStrore';
+import { usePlayerStore } from '../../store/usePlayerStore';
 import { useCityStore } from '../../store/useCityStore';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { CoinBadge } from '../components/CoinBadge';
