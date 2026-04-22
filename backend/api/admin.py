@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Profile, UserBuilding, BuildingType
+
+admin.site.register(Profile)
+admin.site.register(UserBuilding)
+admin.site.register(BuildingType)
