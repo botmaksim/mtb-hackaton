@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { usePlayerStore } from '../../store/usePlayerStore';
 import { useCityStore } from '../../store/useCityStore';
@@ -24,10 +24,14 @@ import { AchievementsModal } from '../features/Achievements/AchievementsModal';
 
 export default function MainGameScreen() {
     const navigate = useNavigate();
-    const logout = useAuthStore(state => state.logout);
+    const { logout, fetchProfile } = useAuthStore();
     const { coins, mtCoins, promoCoins, level } = usePlayerStore();
     const { viewingUserId, viewingUserName } = useCityStore();
     const isSpectator = viewingUserId !== null;
+    
+    useEffect(() => {
+        if (!isSpectator) fetchProfile();
+    }, [fetchProfile, isSpectator]);
     
     const [modals, setModals] = useState({ 
         shop: false, social: false, bank: false, market: false, achievements: false 
@@ -36,7 +40,7 @@ export default function MainGameScreen() {
     const toggleModal = (key) => setModals(prev => ({ ...prev, [key]: !prev[key] }));
 
     return (
-        <div className="relative w-full h-screen bg-slate-900 overflow-hidden flex flex-col text-white">
+        <div className="relative w-full h-screen bg-mtb-gradient-dark bg-noise overflow-hidden flex flex-col text-white font-sans">
             
             {/* --- ВЕРХНЯЯ ПАНЕЛЬ (HUD TOP) --- */}
             <header className="absolute top-0 left-0 right-0 z-40 pointer-events-none">
@@ -45,7 +49,7 @@ export default function MainGameScreen() {
                     {/* ЛЕВАЯ ЧАСТЬ: Профиль в самом углу */}
                     <div className="pt-4 pointer-events-auto">
                         <div className="relative group cursor-pointer" onClick={() => navigate('/profile')}>
-                            <div className="w-14 h-14 rounded-2xl border-2 border-white/20 bg-indigo-600 shadow-2xl flex items-center justify-center overflow-hidden transition-transform active:scale-95">
+                            <div className="w-14 h-14 rounded-2xl border-2 border-white/20 bg-mtb-gradient-blue shadow-[0_10px_20px_rgba(0,33,243,0.3)] flex items-center justify-center overflow-hidden transition-transform active:scale-95">
                                 <img src="/api/placeholder/60/60" alt="Avatar" className="w-full h-full object-cover" />
                             </div>
                             {/* Уровень справа у аватара */}
@@ -173,7 +177,7 @@ function NavBtn({ icon: Icon, label, onClick, active }) {
         <button 
             onClick={onClick}
             className={`flex flex-col items-center justify-center flex-1 py-2 transition-all rounded-2xl ${
-                active ? 'text-indigo-400 bg-white/5' : 'text-slate-500 hover:text-white'
+                active ? 'text-mtb-red bg-mtb-red/10' : 'text-slate-500 hover:text-white'
             }`}
         >
             <Icon size={24} />

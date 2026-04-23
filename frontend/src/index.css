@@ -1,1 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --color-mtb-blue: #0021F3;
+  --color-mtb-red: #F84B36;
+  --color-mtb-grey: #BBBBBB;
+  --color-mtb-dark: #121520; /* Dark background from brandbook */
+  
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, h4, h5, h6, .font-serif {
+  font-family: var(--font-serif);
+}
+
+.bg-noise {
+  position: relative;
+}
+
+.bg-noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.15;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Base Gradient Classes */
+.bg-mtb-gradient-dark {
+  background: linear-gradient(135deg, #001280 0%, #000000 100%);
+}
+
+.bg-mtb-gradient-blue {
+  background: linear-gradient(135deg, #0021F3 0%, #001180 100%);
+}
+
+.bg-mtb-gradient-mixed {
+  background: linear-gradient(135deg, #0021F3 0%, #F84B36 100%);
+}

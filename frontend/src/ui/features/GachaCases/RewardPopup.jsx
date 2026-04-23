@@ -85,10 +85,10 @@ export function RewardPopup({ isOpen, onClose }) {
 
                     {opening && (
                         <motion.div key="opening" initial={{ scale: 0.8 }} animate={{ scale: [1, 1.1, 1], rotate: [0, -5, 5, -5, 0] }} transition={{ repeat: Infinity, duration: 0.4 }} className="flex flex-col items-center h-[280px] justify-center w-full">
-                            <div className="w-32 h-32 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-3xl shadow-2xl flex items-center justify-center border-4 border-purple-400">
+                            <div className="w-32 h-32 bg-mtb-gradient-mixed rounded-3xl shadow-2xl flex items-center justify-center border-4 border-mtb-red/50">
                                 <PackageOpen className="w-16 h-16 text-white animate-ping" />
                             </div>
-                            <p className="mt-8 font-bold text-indigo-600 animate-pulse uppercase tracking-widest text-sm">Открываем...</p>
+                            <p className="mt-8 font-bold text-mtb-blue animate-pulse uppercase tracking-widest text-sm">Открываем...</p>
                         </motion.div>
                     )}
 
@@ -113,7 +113,7 @@ export function RewardPopup({ isOpen, onClose }) {
                                 <Button onClick={handleClose} variant="secondary" className="flex-1">
                                     В Главное меню
                                 </Button>
-                                <Button onClick={handleOpen} className="flex-1 relative overflow-hidden bg-indigo-600">
+                                <Button onClick={handleOpen} className="flex-1 relative overflow-hidden bg-mtb-blue text-white hover:opacity-90">
                                     Еще за 10 💎
                                 </Button>
                             </div>
