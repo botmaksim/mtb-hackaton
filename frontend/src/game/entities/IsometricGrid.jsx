@@ -44,7 +44,7 @@ export function IsometricGrid({ size = 100, cellSize = 60, children, onCellClick
             }}
         >
             {/* Здесь будут рендериться здания (Entities) */}
-            <div className="absolute inset-0 pointer-events-none" style={{ transformStyle: 'preserve-3d' }}>
+            <div className="absolute inset-0 pointer-events-none">
                 {children}
             </div>
 

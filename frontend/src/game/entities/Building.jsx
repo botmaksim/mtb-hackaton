@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Landmark, Store } from 'lucide-react';
 
 /**
  * Рендерит само здание и подсчитывает, готово ли оно к сбору
@@ -34,13 +33,13 @@ export function Building({ building, cellSize = 60, onCollect, isSpectator }) {
 
     return (
         <div
-            className={`absolute z-10 flex flex-col items-center justify-end group ${isSpectator ? 'pointer-events-none' : 'pointer-events-auto cursor-pointer'}`}
+            className={`absolute group ${isSpectator ? 'pointer-events-none' : 'pointer-events-auto cursor-pointer'}`}
             style={{
                 width: pixelWidth,
                 height: pixelHeight,
                 left: building.x * cellSize,
                 top: building.y * cellSize,
-                transform: 'translateZ(1px)', // Исправление z-index для 3D контекста
+                zIndex: Math.floor(building.x + building.y + Math.max(bWidth, bHeight)),
             }}
             onClick={(e) => {
                 e.stopPropagation();
@@ -57,21 +56,26 @@ export function Building({ building, cellSize = 60, onCollect, isSpectator }) {
                 transform: 'translateZ(-1px)'
             }}></div>
 
-            {/* Разворачиваем графику здания обратно к камере */}
-            <div className={`absolute isolate transition-transform duration-200 bottom-[20%]`}
-                style={{
-                    transform: 'rotateZ(-45deg) rotateX(-60deg)',
-                    transformOrigin: 'bottom center'
-                }}>
+            {/* Разворачиваем графику здания обратно к камере, центрируем по середине занимаемой области */}
+            <div className="absolute top-1/2 left-1/2 w-0 h-0">
+                <div className={`absolute isolate transition-transform duration-200`}
+                    style={{
+                        transform: 'rotateZ(-45deg) rotateX(-60deg)',
+                    }}>
+                    <div
+                        className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center justify-end"
+                        style={{ bottom: -(((bWidth + bHeight) / 2) * (cellSize * 0.3535)) }}
+                    >
+                        <BuildingGraphic building={building} />
 
-                <BuildingGraphic building={building} />
-
-                {/* Выпадающая монетка-уведомление */}
-                {isReady && !isSpectator && (
-                    <div className="absolute -top-16 left-1/2 -translate-x-1/2 animate-bounce w-10 h-10 bg-amber-400 rounded-full border-[3px] border-yellow-200 shadow-[0_0_15px_rgba(251,191,36,0.8)] flex items-center justify-center z-50">
-                        <span className="text-amber-800 font-extrabold text-sm drop-shadow">🪙</span>
+                        {/* Выпадающая монетка-уведомление */}
+                        {isReady && !isSpectator && (
+                            <div className="absolute top-[20%] left-1/2 -translate-x-1/2 animate-bounce w-10 h-10 bg-amber-400 rounded-full border-[3px] border-yellow-200 shadow-[0_0_15px_rgba(251,191,36,0.8)] flex items-center justify-center z-50">
+                                <span className="text-amber-800 font-extrabold text-sm drop-shadow">🪙</span>
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
             </div>
         </div>
     );
@@ -82,65 +86,33 @@ function BuildingGraphic({ building }) {
     const isCommercial = building.type === 'shop_1' || building.type === 'bank_branch' || building.type.startsWith('com_');
     const isDecor = building.type === 'decor' || building.type.startsWith('road') || building.id === 'tree' || building.id === 'bush';
 
-    const w = (building.width || 1) * 32 + 30; // Scale visual width a bit
-
-    // Scale visual height based on level! (Level 1, 2, 3)
-    const baseHeightStr = (building.height || 1) * 40;
-    const h = isDecor ? (baseHeightStr + 40) : (baseHeightStr + 40 + (building.level * 20));
+    const bWidth = building.width || 1;
+    const bHeight = building.height || 1;
+    // Base scale per grid cell
+    const baseScale = 90;
+    const size = Math.max(bWidth, bHeight) * baseScale + 40;
 
     if (isDecor) {
         const typeId = building.type;
         const imageUrl = new URL(`../../assets/entities/${typeId}.png`, import.meta.url).href;
 
         return (
-            <div className="w-16 h-16 rounded-full shadow-2xl relative flex items-center justify-center" style={{ backgroundImage: `url(${imageUrl})`, backgroundSize: 'contain', backgroundPosition: 'bottom', backgroundRepeat: 'no-repeat' }}>
-            </div>
-        )
-    }
-
-    if (isMega) {
-        const typeId = building.type;
-        const level = Math.min(building.level || 1, 3);
-        const imageUrl = new URL(`../../assets/entities/${typeId}_lvl${level}.png`, import.meta.url).href;
-
-        return (
-            <div className={`bg-gradient-to-t rounded-t-xl border-4 shadow-2xl relative flex items-end pb-4 justify-center group-hover:-translate-y-2 transition-transform ${building.level === 3 ? 'from-purple-700 to-red-500 border-purple-900' : building.level === 2 ? 'from-red-600 to-orange-400 border-red-800' : 'from-red-500 to-orange-300 border-red-700'}`} style={{ width: w, height: h, backgroundImage: `url(${imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
-                <Store className="text-white/80 w-16 h-16 mb-6 drop-shadow-md" />
-                <div className="absolute bottom-0 w-full h-8 bg-black/60 backdrop-blur-sm border-t border-white/20 flex items-center justify-center">
-                    <span className="text-xs text-white font-bold">{building.name}</span>
-                </div>
+            <div className="relative flex items-center justify-center" style={{ width: size, height: size, backgroundImage: `url(${imageUrl})`, backgroundSize: 'contain', backgroundPosition: 'bottom center', backgroundRepeat: 'no-repeat', transform: building.rotated ? 'scaleX(-1)' : 'none' }}>
             </div>
         );
     }
 
-    if (isCommercial) {
-        const typeId = building.type;
-        const level = Math.min(building.level || 1, 3);
-        const imageUrl = new URL(`../../assets/entities/${typeId}_lvl${level}.png`, import.meta.url).href;
-
-        return (
-            <div className={`bg-gradient-to-t rounded-t-lg border-2 shadow-2xl relative flex items-end pb-4 justify-center group-hover:-translate-y-2 transition-transform ${building.level === 3 ? 'from-indigo-800 to-purple-500 border-indigo-900' : building.level === 2 ? 'from-blue-700 to-sky-400 border-blue-900' : 'from-sky-600 to-cyan-400 border-blue-800'}`} style={{ width: w, height: h, backgroundImage: `url(${imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
-                <Landmark className="text-white/80 w-10 h-10 mb-2 drop-shadow-md" />
-                <div className="absolute bottom-0 w-full h-6 bg-blue-900/50 backdrop-blur-sm border-t border-white/20 flex items-center justify-center">
-                    <span className="text-[10px] text-white font-bold px-1 text-center truncate w-full">{building.name} {building.level > 1 && `L${building.level}`}</span>
-                </div>
-            </div>
-        );
-    }
-
-    // Default Residential
     const typeId = building.type;
     const level = Math.min(building.level || 1, 3);
     const imageUrl = new URL(`../../assets/entities/${typeId}_lvl${level}.png`, import.meta.url).href;
 
     return (
-        <div className={`bg-gradient-to-t rounded-t-xl border-2 shadow-2xl relative flex items-center justify-center flex-col group-hover:-translate-y-2 transition-transform
-            ${building.level === 3 ? 'from-rose-600 to-pink-500 border-rose-800' : building.level === 2 ? 'from-orange-600 to-orange-400 border-orange-800' : 'from-amber-500 to-yellow-400 border-amber-700'}`} style={{ width: w, height: h, backgroundImage: `url(${imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
-        >
-            <Building2 className="text-white/60 w-8 h-8 mb-2" />
-            <div className="text-white font-bold text-[10px] bg-black/40 px-2 py-0.5 rounded shadow-inner mb-2 backdrop-blur border border-white/10 text-center truncate max-w-[90%]">
-                {building.name || `LVL ${building.level}`}
-            </div>
+        <div className="relative flex items-end pb-2 justify-center group-hover:-translate-y-2 transition-transform" style={{ width: size, height: size, backgroundImage: `url(${imageUrl})`, backgroundSize: 'contain', backgroundPosition: 'bottom center', backgroundRepeat: 'no-repeat', transform: building.rotated ? 'scaleX(-1)' : 'none' }}>
+            {!isDecor && (
+                <div className="absolute -bottom-4 w-auto px-3 h-6 bg-black/60 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center shadow-lg" style={{ transform: building.rotated ? 'scaleX(-1)' : 'none' }}>
+                    <span className="text-[10px] text-white font-bold text-center truncate whitespace-nowrap">{building.name} {building.level > 1 && `L${building.level}`}</span>
+                </div>
+            )}
         </div>
     );
 }

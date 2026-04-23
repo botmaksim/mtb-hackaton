@@ -39,4 +39,4 @@ class UserBuildingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserBuilding
-        fields = ['id', 'type', 'name', 'x', 'y', 'level', 'maxCapacity', 'incomeRate', 'lastCollected', 'base_cost']
+        fields = ['id', 'type', 'name', 'x', 'y', 'level', 'maxCapacity', 'incomeRate', 'lastCollected', 'base_cost', 'rotated']

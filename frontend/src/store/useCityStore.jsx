@@ -58,10 +58,12 @@ export const useCityStore = create((set, get) => ({
             if (data && data.buildings) {
                 const mappedBuildings = data.buildings.map(b => {
                     const catalogItem = BUILDING_CATALOG.find(cat => cat.id === b.type);
+                    const baseWidth = catalogItem ? catalogItem.width : 1;
+                    const baseHeight = catalogItem ? catalogItem.height : 1;
                     return {
                         ...b,
-                        width: catalogItem ? catalogItem.width : 1,
-                        height: catalogItem ? catalogItem.height : 1,
+                        width: b.rotated ? baseHeight : baseWidth,
+                        height: b.rotated ? baseWidth : baseHeight,
                     };
                 });
                 set({ buildings: mappedBuildings });
@@ -84,7 +86,7 @@ export const useCityStore = create((set, get) => ({
         placementMode: { active, type, name, price, width, height }
     }),
 
-    placeBuilding: (type, name, x, y, width = 1, height = 1) => set((state) => ({
+    placeBuilding: (type, name, x, y, width = 1, height = 1, rotated = false) => set((state) => ({
         buildings: [...state.buildings, {
             id: Math.random().toString(),
             type,
@@ -93,6 +95,7 @@ export const useCityStore = create((set, get) => ({
             y,
             width,
             height,
+            rotated,
             level: 1,
             lastCollected: Date.now(),
             maxCapacity: 500,

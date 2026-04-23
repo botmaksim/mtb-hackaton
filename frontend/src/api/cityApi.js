@@ -11,11 +11,12 @@ export const cityApi = {
     },
     
     // Постройка здания (отправляем pos_x и pos_y)
-    buildBuilding: (buildingTypeId, x, y) => 
-        apiClient.post('/game/build/', { 
-            type_id: buildingTypeId, 
-            pos_x: x, 
-            pos_y: y 
+    buildBuilding: (buildingTypeId, x, y, rotated = false) =>
+        apiClient.post('/game/build/', {
+            type_id: buildingTypeId,
+            pos_x: x,
+            pos_y: y,
+            rotated
         }),
     
     // Сбор дохода

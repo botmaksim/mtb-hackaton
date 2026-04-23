@@ -70,6 +70,7 @@ class CityView(APIView):
         type_id = request.data.get('type_id')
         x = request.data.get('pos_x')
         y = request.data.get('pos_y')
+        rotated = request.data.get('rotated', False)
         
         if x is None or y is None:
             return Response({"error": "Не указаны координаты здания"}, status=400)
@@ -86,6 +87,7 @@ class CityView(APIView):
                 type=b_type,
                 x=x,
                 y=y,
+                rotated=rotated,
                 lastCollected=int(timezone.now().timestamp() * 1000)
             )
 
@@ -152,24 +154,56 @@ class UpgradeBuildingView(APIView):
         except (UserBuilding.DoesNotExist, ValidationError):
             return Response({"error": "Здание не найдено"}, status=404)
 
+import random
+
 class OpenCaseView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
         case_id = request.data.get('case_id')
         profile = request.user.profile
         
-        # Suppose a case costs 500 coins or 10 mtCoins
-        cost = 10 # MTCoins are spent per UI
-        if profile.mtCoins < cost:
-            return Response({"error": "Недостаточно средств"}, status=400)
-        
-        profile.mtCoins -= cost
-        # Give random reward
-        reward_coins = 500
-        profile.coins += reward_coins
-        profile.save()
-        
-        return Response({"success": True, "drop": {"drop_type": "coins", "amount": reward_coins}})
+        if case_id == 'normal':
+            cost = 10
+            if profile.mtCoins < cost:
+                return Response({"error": "Недостаточно МТКоинов"}, status=400)
+            
+            profile.mtCoins -= cost
+            
+            # 80% chance for coins, 20% chance for promoCoins
+            roll = random.random()
+            if roll < 0.8:
+                amount = random.randint(500, 2500)
+                profile.coins += amount
+                drop_data = {"drop_type": "coins", "amount": amount, "name": "Монеты"}
+            else:
+                amount = random.randint(1, 5)
+                profile.promoCoins += amount
+                drop_data = {"drop_type": "promoCoins", "amount": amount, "name": "Промо-коины"}
+                
+            profile.save()
+            return Response({"success": True, "drop": drop_data})
+            
+        elif case_id == 'promo':
+            cost = 50
+            if profile.promoCoins < cost:
+                return Response({"error": "Недостаточно Промокоинов"}, status=400)
+                
+            profile.promoCoins -= cost
+            
+            # 50% chance for KFC, 50% chance for Moneyback
+            roll = random.random()
+            if roll < 0.5:
+                # Random code generator
+                code = f"KFC-MTB-{random.randint(1000, 9999)}"
+                drop_data = {"drop_type": "promocode", "name": "Промокод KFC", "text": code}
+            else:
+                code = f"CASHBACK-{random.randint(10, 50)}%"
+                drop_data = {"drop_type": "promocode", "name": "Манибэк от МТБ", "text": code}
+                
+            profile.save()
+            return Response({"success": True, "drop": drop_data})
+            
+        return Response({"error": "Неизвестный тип кейса"}, status=400)
 
 class AchievementsView(APIView):
     permission_classes = [IsAuthenticated]

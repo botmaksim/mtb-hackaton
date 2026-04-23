@@ -35,6 +35,7 @@ class UserBuilding(models.Model):
     y = models.IntegerField()
     level = models.IntegerField(default=1)
     lastCollected = models.BigIntegerField()
+    rotated = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.type.name} ({self.user.username})"
