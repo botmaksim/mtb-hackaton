@@ -42,7 +42,7 @@ class CityView(APIView):
 
     def get_permissions(self):
         if self.request.method == 'GET':
-            user_id = self.request.query_params.get('user_id')
+            user_id = self.request.GET.get('user_id')
             if user_id == 'guest':
                 return [AllowAny()]
         return super().get_permissions()
@@ -52,12 +52,28 @@ class CityView(APIView):
         target_user = request.user
         if user_id:
             if user_id == 'guest':
-                 return Response({"error": "Guest access not supported directly by id"}, status=404)
+                 # Возвращаем красивый витринный город для гостя
+                 return Response({
+                     "buildings": [
+                         {"id": "g1", "type": "residential_1", "name": "Эко-Дом", "x": 3, "y": 2, "level": 3, "lastCollected": int(timezone.now().timestamp() * 1000), "maxCapacity": 1000, "incomeRate": 100, "width": 2, "height": 2, "rotated": False},
+                         {"id": "g2", "type": "com_2x4_1", "name": "Супермаркет", "x": 6, "y": 3, "level": 2, "lastCollected": int(timezone.now().timestamp() * 1000), "maxCapacity": 2000, "incomeRate": 250, "width": 2, "height": 4, "rotated": False},
+                         {"id": "g3", "type": "decor", "name": "Парк", "x": 5, "y": 2, "level": 1, "lastCollected": int(timezone.now().timestamp() * 1000), "maxCapacity": 0, "incomeRate": 0, "width": 1, "height": 1, "rotated": False}
+                     ],
+                     "profile": {
+                         "id": 999,
+                         "username": "Guest",
+                         "email": "guest@mtbank.by"
+                     }
+                 })
             try:
                 from django.contrib.auth.models import User
                 target_user = User.objects.get(id=user_id)
             except (User.DoesNotExist, ValueError):
                 return Response({"error": "User not found"}, status=404)
+                
+        # Если не гость и нет target_user (т.е. обычный запрос без user_id), но request.user Anonymous
+        if not target_user.is_authenticated:
+            return Response({"error": "Авторизуйтесь"}, status=401)
                 
         buildings = UserBuilding.objects.filter(user=target_user)
         return Response({

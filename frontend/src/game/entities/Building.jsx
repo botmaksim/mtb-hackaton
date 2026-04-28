@@ -88,16 +88,22 @@ function BuildingGraphic({ building }) {
 
     const bWidth = building.width || 1;
     const bHeight = building.height || 1;
-    // Base scale per grid cell
-    const baseScale = 90;
-    const size = Math.max(bWidth, bHeight) * baseScale + 40;
+    
+    // Cell diagonal in screen pixels = cellSize * sqrt(2) ≈ 84.85
+    // Each cell contributes half of that to the total width
+    const isoWidth = (bWidth + bHeight) * 60 * 0.7071;
+    
+    // For background-size: 100% auto, we just need the height to be larger than the max sprite aspect ratio.
+    // Making it extra tall (2.5x width) guarantees no vertical clipping for tall skyscrapers.
+    const containerWidth = isoWidth;
+    const containerHeight = isoWidth * 2.5; 
 
     if (isDecor) {
         const typeId = building.type;
         const imageUrl = new URL(`../../assets/entities/${typeId}.png`, import.meta.url).href;
 
         return (
-            <div className="relative flex items-center justify-center" style={{ width: size, height: size, backgroundImage: `url(${imageUrl})`, backgroundSize: 'contain', backgroundPosition: 'bottom center', backgroundRepeat: 'no-repeat', transform: building.rotated ? 'scaleX(-1)' : 'none' }}>
+            <div className="relative flex items-end justify-center" style={{ width: containerWidth, height: containerHeight, backgroundImage: `url(${imageUrl})`, backgroundSize: '100% auto', backgroundPosition: 'bottom center', backgroundRepeat: 'no-repeat', transform: building.rotated ? 'scaleX(-1)' : 'none' }}>
             </div>
         );
     }
@@ -107,9 +113,9 @@ function BuildingGraphic({ building }) {
     const imageUrl = new URL(`../../assets/entities/${typeId}_lvl${level}.png`, import.meta.url).href;
 
     return (
-        <div className="relative flex items-end pb-2 justify-center group-hover:-translate-y-2 transition-transform" style={{ width: size, height: size, backgroundImage: `url(${imageUrl})`, backgroundSize: 'contain', backgroundPosition: 'bottom center', backgroundRepeat: 'no-repeat', transform: building.rotated ? 'scaleX(-1)' : 'none' }}>
+        <div className="relative flex items-end pb-[10%] justify-center group-hover:-translate-y-2 transition-transform" style={{ width: containerWidth, height: containerHeight, backgroundImage: `url(${imageUrl})`, backgroundSize: '100% auto', backgroundPosition: 'bottom center', backgroundRepeat: 'no-repeat', transform: building.rotated ? 'scaleX(-1)' : 'none' }}>
             {!isDecor && (
-                <div className="absolute -bottom-4 w-auto px-3 h-6 bg-black/60 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center shadow-lg" style={{ transform: building.rotated ? 'scaleX(-1)' : 'none' }}>
+                <div className="absolute -bottom-2 w-auto px-3 h-6 bg-black/60 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center shadow-lg" style={{ transform: building.rotated ? 'scaleX(-1)' : 'none', zIndex: 10 }}>
                     <span className="text-[10px] text-white font-bold text-center truncate whitespace-nowrap">{building.name} {building.level > 1 && `L${building.level}`}</span>
                 </div>
             )}

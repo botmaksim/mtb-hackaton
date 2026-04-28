@@ -85,10 +85,11 @@ export function RewardPopup({ isOpen, onClose }) {
                             {/* Обычный Кейс */}
                             <div className="bg-white rounded-3xl p-6 border-2 border-gray-100 shadow-sm w-full flex flex-col items-center relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 bg-blue-100 text-blue-700 text-[10px] px-3 py-1 font-bold rounded-bl-xl">Базовый</div>
-                                <div className="w-24 h-24 bg-gradient-to-tr from-blue-400 to-sky-400 rounded-2xl shadow-lg flex items-center justify-center mb-4 border-2 border-blue-300 group-hover:rotate-6 transition-transform cursor-pointer" onClick={() => handleOpen('normal', 10, 'mtCoins')}>
-                                    <PackageOpen className="w-12 h-12 text-white" />
+                                <div className="w-24 h-24 rounded-2xl shadow-lg flex items-center justify-center mb-4 border-2 border-blue-100 group-hover:rotate-6 transition-transform cursor-pointer relative overflow-hidden" onClick={() => handleOpen('normal', 10, 'mtCoins')}>
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-blue-400/20 to-sky-400/20" />
+                                    <img src={new URL('../../../assets/icons/case_donate.png', import.meta.url).href} alt="donate case" className="w-[80%] h-[80%] object-contain" />
                                 </div>
-                                <h3 className="font-bold text-lg text-gray-900 mb-1">Обычный Кейс</h3>
+                                <h3 className="font-bold text-lg text-gray-900 mb-1">Донат Кейс</h3>
                                 <p className="text-xs text-gray-500 mb-4 h-8">Дропает Коины или Промокоины</p>
                                 <Button size="sm" className="w-full" onClick={() => handleOpen('normal', 10, 'mtCoins')}>
                                     Открыть за 10 💎 (МТ)
@@ -98,8 +99,9 @@ export function RewardPopup({ isOpen, onClose }) {
                             {/* Промо Кейс */}
                             <div className="bg-white rounded-3xl p-6 border-2 border-mtb-red/20 shadow-sm w-full flex flex-col items-center relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 bg-mtb-red text-white text-[10px] px-3 py-1 font-bold rounded-bl-xl">Реальный дроп</div>
-                                <div className="w-24 h-24 bg-gradient-to-tr from-mtb-red to-orange-500 rounded-2xl shadow-lg flex items-center justify-center mb-4 border-2 border-red-300 group-hover:rotate-6 transition-transform cursor-pointer" onClick={() => handleOpen('promo', 50, 'promoCoins')}>
-                                    <Gift className="w-12 h-12 text-white" />
+                                <div className="w-24 h-24 rounded-2xl shadow-lg flex items-center justify-center mb-4 border-2 border-red-100 group-hover:rotate-6 transition-transform cursor-pointer relative overflow-hidden" onClick={() => handleOpen('promo', 50, 'promoCoins')}>
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-red-400/20 to-orange-400/20" />
+                                    <img src={new URL('../../../assets/icons/case_promo.png', import.meta.url).href} alt="promo case" className="w-[80%] h-[80%] object-contain" />
                                 </div>
                                 <h3 className="font-bold text-lg text-gray-900 mb-1">Промо Кейс</h3>
                                 <p className="text-xs text-gray-500 mb-4 h-8">Сертификаты KFC, Манибэк от МТБ!</p>
