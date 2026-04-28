@@ -6,7 +6,7 @@ import { ArrowRightLeft, Loader2 } from "lucide-react";
 import { marketApi } from "../../../api/marketApi";
 
 export function MarketModal({ isOpen, onClose }) {
-    const { mtCoins, promoCoins, subtractMtCoins, addMtCoins, subtractPromoCoins } = usePlayerStore();
+    const { mtCoins, promoCoins, subtractMtCoins, subtractPromoCoins } = usePlayerStore();
     const [tab, setTab] = useState('buy'); // buy | sell
     const [listings, setListings] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -67,20 +67,20 @@ export function MarketModal({ isOpen, onClose }) {
     return (
         <ModalBase isOpen={isOpen} onClose={onClose} title="Торговая площадка P2P">
             <div className="flex gap-2 mb-4 bg-gray-100 p-1 rounded-xl">
-                <button 
+                <button
                     onClick={() => setTab('buy')}
-                    className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-all ${tab === 'buy' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-all ${tab === 'buy' ? 'bg-white text-mtb-blue shadow-[0_2px_10px_rgba(0,33,243,0.1)]' : 'text-gray-500 hover:text-gray-700'}`}
                 >Купить Скины</button>
-                <button 
+                <button
                     onClick={() => setTab('sell')}
-                    className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-all ${tab === 'sell' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-all ${tab === 'sell' ? 'bg-white text-mtb-blue shadow-[0_2px_10px_rgba(0,33,243,0.1)]' : 'text-gray-500 hover:text-gray-700'}`}
                 >Махнуться ресами</button>
             </div>
 
             {tab === 'buy' && (
                 <div className="space-y-3">
                     {loading ? (
-                        <div className="flex justify-center p-6"><Loader2 className="animate-spin text-indigo-500" /></div>
+                        <div className="flex justify-center p-6"><Loader2 className="animate-spin text-mtb-blue" /></div>
                     ) : listings.length === 0 ? (
                         <p className="text-center text-gray-500 p-4">Нет активных лотов</p>
                     ) : listings.map(l => (
@@ -89,8 +89,8 @@ export function MarketModal({ isOpen, onClose }) {
                                 <p className={`font-bold text-${l.color || 'gray'}-900`}>{l.name}</p>
                                 <p className={`text-xs text-${l.color || 'gray'}-700/70`}>{l.description} (продавец: {l.seller})</p>
                             </div>
-                            <Button size="sm" onClick={() => handleBuy(l.price, l.name, l.id)} disabled={actionLoading === l.id} className="bg-indigo-600 text-white w-20">
-                                {actionLoading === l.id ? <Loader2 size={14} className="animate-spin" /> : `${l.price} 💎`}
+                            <Button size="sm" onClick={() => handleBuy(l.price, l.name, l.id)} disabled={actionLoading === l.id} className="bg-mtb-blue hover:opacity-90 text-white w-20 flex items-center gap-1 justify-center">
+                                {actionLoading === l.id ? <Loader2 size={14} className="animate-spin" /> : <>{l.price} <img src="/src/assets/icons/mtcoin.png" className="w-4 h-4" /></>}
                             </Button>
                         </div>
                     ))}
@@ -100,14 +100,14 @@ export function MarketModal({ isOpen, onClose }) {
             {tab === 'sell' && (
                 <div className="space-y-4">
                     <div className="bg-white border border-gray-200 p-4 rounded-2xl text-center">
-                        <ArrowRightLeft className="mx-auto text-indigo-400 w-8 h-8 mb-2" />
-                        <h4 className="font-bold text-gray-900">Выставить лот</h4>
+                        <ArrowRightLeft className="mx-auto text-mtb-blue w-8 h-8 mb-2" />
+                        <h4 className="font-bold text-gray-900 font-serif">Выставить лот</h4>
                         <p className="text-xs text-gray-500 mb-4 mt-1">Игроки могут покупать ваши сезонные ресурсы (например, Промокоины) за донат-валюту МТКоины.</p>
-                        
+
                         <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 flex items-center justify-between mb-4">
-                            <span className="font-bold text-emerald-700">100 🎟️</span>
+                            <span className="font-bold text-emerald-700 flex items-center gap-1">100 <img src="/src/assets/icons/promocoin.png" className="w-4 h-4" /></span>
                             <span className="text-gray-400 text-sm">➡️</span>
-                            <span className="font-bold text-indigo-700">10 💎 МТКоинов</span>
+                            <span className="font-bold text-mtb-blue flex items-center gap-1">10 <img src="/src/assets/icons/mtcoin.png" className="w-4 h-4" /> МТКоинов</span>
                         </div>
                         <Button className="w-full" onClick={handleSell} disabled={actionLoading === 'sell'}>
                             {actionLoading === 'sell' ? <Loader2 className="animate-spin" /> : 'Выставить на маркет'}

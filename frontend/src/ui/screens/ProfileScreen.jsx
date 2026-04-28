@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
 import { usePlayerStore } from '../../store/usePlayerStore';
@@ -10,8 +10,12 @@ import { Button } from '../components/Button';
 
 export default function ProfileScreen() {
     const navigate = useNavigate();
-    const { profile, logout } = useAuthStore();
+    const { profile, logout, fetchProfile } = useAuthStore();
     const { realBalance, transactions } = usePlayerStore();
+
+    useEffect(() => {
+        fetchProfile();
+    }, [fetchProfile]);
 
     return (
         <div className="w-full h-[100dvh] bg-gray-50 flex flex-col max-w-md mx-auto shadow-2xl relative">
@@ -36,10 +40,10 @@ export default function ProfileScreen() {
                 <motion.div 
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    className="bg-gradient-to-br from-indigo-900 via-gray-900 to-black rounded-3xl p-6 text-white shadow-2xl relative overflow-hidden"
+                    className="bg-mtb-gradient-dark bg-noise rounded-3xl p-6 text-white shadow-2xl relative overflow-hidden"
                 >
                     <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-                    <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-indigo-500/30 rounded-full blur-3xl"></div>
+                    <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-mtb-blue/30 rounded-full blur-3xl"></div>
                     
                     <div className="flex justify-between items-start mb-8 relative z-10">
                         <div>
@@ -47,7 +51,7 @@ export default function ProfileScreen() {
                             <h2 className="text-3xl font-black tracking-tight">{realBalance.toFixed(2)} <span className="text-xl text-white/70">BYN</span></h2>
                         </div>
                         <div className="bg-white/10 p-2.5 rounded-xl backdrop-blur-md">
-                            <Landmark className="w-6 h-6 text-indigo-300" />
+                            <Landmark className="w-6 h-6 text-white" />
                         </div>
                     </div>
 
@@ -57,10 +61,10 @@ export default function ProfileScreen() {
                                 <span>•••• 4209</span>
                                 <Copy className="w-3 h-3 text-white/50 cursor-pointer hover:text-white" />
                             </div>
-                            <p className="text-indigo-300 text-xs font-bold uppercase tracking-widest">MTBank Tycoon Edition</p>
+                            <p className="text-white/60 text-xs font-bold uppercase tracking-widest">MTBank Tycoon Edition</p>
                         </div>
                         <div className="flex -space-x-3">
-                            <div className="w-10 h-10 rounded-full border-2 border-black bg-red-400 opacity-90 mix-blend-screen shadow-lg"></div>
+                            <div className="w-10 h-10 rounded-full border-2 border-black bg-mtb-red opacity-90 mix-blend-screen shadow-lg"></div>
                             <div className="w-10 h-10 rounded-full border-2 border-black bg-orange-400 opacity-90 mix-blend-screen shadow-lg"></div>
                         </div>
                     </div>
@@ -86,8 +90,8 @@ export default function ProfileScreen() {
                 {/* История транзакций */}
                 <div>
                     <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-bold text-gray-900 text-lg">История операций</h3>
-                        <button className="text-indigo-600 text-sm font-bold bg-indigo-50 px-3 py-1 rounded-full cursor-pointer">Все</button>
+                        <h3 className="font-bold text-gray-900 text-lg font-serif">История операций</h3>
+                        <button className="text-mtb-blue text-sm font-bold bg-mtb-blue/5 px-3 py-1 rounded-full cursor-pointer hover:bg-mtb-blue/10 transition-colors border border-mtb-blue/10">Все</button>
                     </div>
                     <div className="space-y-3">
                         {transactions.map((tx) => (
@@ -101,7 +105,7 @@ export default function ProfileScreen() {
                                     <p className="font-bold text-sm text-gray-900 truncate">{tx.title}</p>
                                     <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
                                         <span>{format(new Date(tx.date), 'dd MMMM, HH:mm', { locale: ru })}</span>
-                                        {tx.mcc && <span className="bg-indigo-50 text-indigo-600 font-bold px-1.5 py-0.5 rounded-md text-[9px]">МСС {tx.mcc}</span>}
+                                        {tx.mcc && <span className="bg-mtb-blue/10 text-mtb-blue font-bold px-1.5 py-0.5 rounded-md text-[9px] uppercase">МСС {tx.mcc}</span>}
                                     </div>
                                 </div>
                                 <div className={`font-black tracking-tight ${tx.amount > 0 ? 'text-emerald-600' : 'text-gray-900'}`}>
@@ -123,7 +127,7 @@ export default function ProfileScreen() {
             <div className="absolute bottom-6 left-0 right-0 px-4">
                 <Button 
                     size="lg" 
-                    className="w-full relative overflow-hidden group py-4 text-lg bg-indigo-600 hover:bg-indigo-500 border-2 border-indigo-400 shadow-[0_10px_30px_rgba(79,70,229,0.4)]"
+                    className="w-full relative overflow-hidden group py-4 text-lg bg-mtb-blue hover:opacity-90 border-2 border-mtb-blue/80 shadow-[0_10px_30px_rgba(0,33,243,0.3)]"
                     onClick={() => navigate('/game')}
                 >
                     <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:animate-[shimmer_1.5s_infinite]" />

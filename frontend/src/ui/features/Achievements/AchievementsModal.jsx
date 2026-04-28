@@ -36,7 +36,7 @@ export function AchievementsModal({ isOpen, onClose }) {
             setClaiming(id);
             await cityApi.claimAchievement(id);
             addPromoCoins(amount);
-            
+
             // Локальный апдейт
             setQuests(prev => prev.map(q => q.id === id ? { ...q, claimed: true } : q));
         } catch (err) {
@@ -65,20 +65,20 @@ export function AchievementsModal({ isOpen, onClose }) {
                             <h4 className={`font-bold text-sm ${q.claimed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>{q.title}</h4>
                             <p className="text-[10px] text-gray-500 leading-tight mt-0.5">{q.desc}</p>
                         </div>
-                        
+
                         {q.claimed ? (
                             <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
                                 <CheckCircle2 size={16} />
                             </div>
                         ) : q.condition ? (
-                            <Button 
-                                size="sm" 
-                                variant="success" 
-                                className="shrink-0 text-[10px] px-2 py-1 shadow-emerald-200" 
+                            <Button
+                                size="sm"
+                                variant="success"
+                                className="shrink-0 text-[10px] px-2 py-1 shadow-emerald-200 flex items-center gap-1 justify-center"
                                 onClick={() => handleClaim(q.id, q.reward)}
                                 disabled={claiming === q.id}
                             >
-                                {claiming === q.id ? <Loader2 size={14} className="animate-spin" /> : `Получить ${q.reward} 🎟️`}
+                                {claiming === q.id ? <Loader2 size={14} className="animate-spin" /> : <>Получить {q.reward} <img src="/src/assets/icons/promocoin.png" className="w-3 h-3" /></>}
                             </Button>
                         ) : (
                             <div className="bg-gray-100 text-gray-400 font-bold text-[10px] px-2 py-1 rounded-lg shrink-0">
@@ -88,7 +88,7 @@ export function AchievementsModal({ isOpen, onClose }) {
                     </div>
                 ))}
             </div>
-            
+
             <p className="text-center text-xs text-gray-400 mt-4">Новые ачивки появляются каждый день!</p>
         </ModalBase>
     );

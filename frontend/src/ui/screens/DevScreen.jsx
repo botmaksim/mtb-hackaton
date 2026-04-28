@@ -7,7 +7,7 @@ import { ArrowLeft, RefreshCw, Zap, Trash2, Building, DollarSign } from 'lucide-
 
 export default function DevScreen() {
     const navigate = useNavigate();
-    
+
     // Подключаем сторы руками для дев-панели
     const playerStore = usePlayerStore();
     const cityStore = useCityStore();
@@ -17,7 +17,7 @@ export default function DevScreen() {
     const setLevel = (val) => usePlayerStore.setState({ level: val });
 
     const handleHardReset = () => {
-        if(window.confirm('Точно сбросить весь прогресс (кроме авторизации)?')) {
+        if (window.confirm('Точно сбросить весь прогресс (кроме авторизации)?')) {
             usePlayerStore.setState({ coins: 1500, mtCoins: 50, promoCoins: 10, energy: 100, level: 1, transactions: [] });
             // Оставляем начальный домик
             useCityStore.setState({ buildings: [{ id: 'b1', type: 'residential_1', name: 'Маленький домик', x: 2, y: 3, level: 1, lastCollected: Date.now() - 3600000, maxCapacity: 100, incomeRate: 10 }] });
@@ -44,30 +44,30 @@ export default function DevScreen() {
             </div>
 
             <div className="mb-6">
-                <h1 className="text-3xl font-black text-gray-900 leading-tight">Хакатон<br/><span className="text-indigo-600">Dev Panel</span> 🛠</h1>
+                <h1 className="text-3xl font-black text-gray-900 leading-tight">Хакатон<br /><span className="text-indigo-600">Dev Panel</span> 🛠</h1>
                 <p className="text-gray-500 text-sm mt-1">Центр управления полетами для демо перед жюри.</p>
             </div>
-            
+
             <div className="space-y-6">
-                
+
                 {/* 1. ЭМУЛЯТОР БАНКА */}
                 <section className="bg-white p-5 rounded-3xl shadow-sm border border-gray-200">
                     <div className="flex items-center gap-2 mb-4 border-b border-gray-100 pb-3">
                         <DollarSign className="text-emerald-500" />
                         <h2 className="font-bold text-gray-900 text-lg">Банк (Реальный мир)</h2>
                     </div>
-                    
+
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-bold text-gray-700 mb-1.5">Баланс Карты (BYN)</label>
-                            <input 
+                            <input
                                 type="number"
                                 value={playerStore.realBalance}
                                 onChange={(e) => setRealBalance(Number(e.target.value))}
                                 className="w-full bg-gray-50 rounded-xl px-4 py-3 font-mono outline-none border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all text-lg"
                             />
                         </div>
-                        
+
                         <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
                             <p className="text-sm font-bold text-indigo-900 mb-2">Генерация транзакций (MCC-синергия)</p>
                             <div className="grid grid-cols-2 gap-2">
@@ -93,35 +93,35 @@ export default function DevScreen() {
                         <Zap className="text-yellow-500" />
                         <h2 className="font-bold text-gray-900 text-lg">Игровые Ресурсы</h2>
                     </div>
-                    
+
                     <div className="space-y-4">
-                        <CurrencyRow 
-                            icon="🪙" name="Коины (Строительство)" value={playerStore.coins} 
-                            onMinus={() => playerStore.subtractCoins(1000)} 
-                            onPlus={() => playerStore.addCoins(1000)} 
-                            step="1K" 
+                        <CurrencyRow
+                            icon={<img src="/src/assets/icons/coin.png" className="w-5 h-5 inline-block" />} name="Коины (Строительство)" value={playerStore.coins}
+                            onMinus={() => playerStore.subtractCoins(1000)}
+                            onPlus={() => playerStore.addCoins(1000)}
+                            step="1K"
                         />
-                        <CurrencyRow 
-                            icon="💎" name="МТКоины (Донат/Призы)" value={playerStore.mtCoins} color="text-indigo-600"
-                            onMinus={() => playerStore.subtractMtCoins(50)} 
-                            onPlus={() => playerStore.addMtCoins(50)} 
-                            step="50" 
+                        <CurrencyRow
+                            icon={<img src="/src/assets/icons/mtcoin.png" className="w-5 h-5 inline-block" />} name="МТКоины (Донат/Призы)" value={playerStore.mtCoins} color="text-indigo-600"
+                            onMinus={() => playerStore.subtractMtCoins(50)}
+                            onPlus={() => playerStore.addMtCoins(50)}
+                            step="50"
                         />
-                        <CurrencyRow 
-                            icon="🎟️" name="PromoCoins (Кейсы)" value={playerStore.promoCoins} color="text-emerald-600"
-                            onMinus={() => {}} 
-                            onPlus={() => playerStore.addPromoCoins(10)} 
-                            step="10" 
+                        <CurrencyRow
+                            icon={<img src="/src/assets/icons/promocoin.png" className="w-5 h-5 inline-block" />} name="PromoCoins (Кейсы)" value={playerStore.promoCoins} color="text-emerald-600"
+                            onMinus={() => { }}
+                            onPlus={() => playerStore.addPromoCoins(10)}
+                            step="10"
                         />
-                        
+
                         <div className="flex items-center justify-between pt-2">
-                           <span className="font-bold text-sm">Уровень Тайкуна</span>
-                           <input 
-                               type="number" 
-                               value={playerStore.level} 
-                               onChange={(e) => setLevel(Number(e.target.value))} 
-                               className="w-20 bg-gray-100 rounded-lg px-2 py-1 text-center font-bold outline-none" min="1" max="99" 
-                           />
+                            <span className="font-bold text-sm">Уровень Тайкуна</span>
+                            <input
+                                type="number"
+                                value={playerStore.level}
+                                onChange={(e) => setLevel(Number(e.target.value))}
+                                className="w-20 bg-gray-100 rounded-lg px-2 py-1 text-center font-bold outline-none" min="1" max="99"
+                            />
                         </div>
                     </div>
                 </section>
@@ -132,7 +132,7 @@ export default function DevScreen() {
                         <Building className="text-sky-500" />
                         <h2 className="font-bold text-gray-900 text-lg">Город / Карта</h2>
                     </div>
-                    
+
                     <div className="space-y-3">
                         <div className="flex justify-between items-center bg-sky-50 p-3 rounded-xl border border-sky-100">
                             <div>

@@ -19,14 +19,8 @@ export const useAuthStore = create((set) => ({
                 profile: data.user || { username, name: 'MTBank User' }
             });
         } catch (error) {
-            // ФОЛЛБЕК ДЛЯ ХАКАТОНА: Если бэкенд упал или не готов, всё равно пускаем локально (для показа жюри)
-            console.warn('API недоступно, используем хакатон-заглушку входа');
-            localStorage.setItem('bank_game_token', 'demo_hackathon_token');
-            set({
-                token: 'demo_hackathon_token',
-                isLoggedIn: true,
-                profile: { id: 1, username: username, name: 'Тестовый аккаунт' }
-            });
+            console.error('Login error:', error);
+            throw error;
         }
     },
 
@@ -42,9 +36,8 @@ export const useAuthStore = create((set) => ({
                 profile: data.user || { username, email }
             });
         } catch (error) {
-            console.warn('API недоступно, используем хакатон-заглушку регистрации');
-            localStorage.setItem('bank_game_token', 'demo_hackathon_token');
-            set({ token: 'demo_hackathon_token', isLoggedIn: true, profile: { username, email } });
+            console.error('Register error:', error);
+            throw error;
         }
     },
 
@@ -52,4 +45,20 @@ export const useAuthStore = create((set) => ({
         localStorage.removeItem('bank_game_token');
         set({ token: null, isLoggedIn: false, profile: null });
     },
+    
+    fetchProfile: async () => {
+        try {
+            if (localStorage.getItem('bank_game_token')) {
+                const data = await authApi.getProfile();
+                set({ profile: data.user || data });
+                import('./usePlayerStore').then(module => {
+                    module.usePlayerStore.getState().updateFromProfile(data.user || data);
+                });
+            }
+        } catch (err) {
+            console.error('Failed to fetch profile', err);
+            set({ token: null, isLoggedIn: false, profile: null });
+            localStorage.removeItem('bank_game_token');
+        }
+    }
 }));

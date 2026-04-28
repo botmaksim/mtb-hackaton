@@ -20,15 +20,22 @@ export function ShopModal({ isOpen, onClose }) {
         }
     };
 
-    const handleUpgrade = async (id) => {
-        const upgradeCost = 200; // Для демо
-        if (coins >= upgradeCost) {
+    const handleUpgrade = async (id, backendCost) => {
+        if (coins >= backendCost) {
             try {
                 setActionLoading(`upg_${id}`);
-                await cityApi.upgradeBuilding(id);
-                subtractCoins(upgradeCost);
-                upgradeBuilding(id);
-                addPromoCoins(5);
+                const res = await cityApi.upgradeBuilding(id);
+                // Sync data directly from response
+                usePlayerStore.getState().updateBalance(res.data.coins);
+                usePlayerStore.getState().updateFromProfile({
+                    ...usePlayerStore.getState(),
+                    coins: res.data.coins,
+                    promoCoins: res.data.promoCoins
+                });
+
+                // Fetch updated city data to update the local store safely without duplicate local mutations
+                useCityStore.getState().fetchCityData();
+
                 alert('Уровень повышен! За апгрейд вы получили +5 Промокоинов 🎟️!');
             } catch (err) {
                 alert(err?.response?.data?.error || 'Ошибка при апгрейде');
@@ -39,15 +46,15 @@ export function ShopModal({ isOpen, onClose }) {
             alert('Не хватает коинов для апгрейда!');
         }
     };
-    
+
     const handleSyndicate = async (item) => {
         try {
             setActionLoading('syndicate');
             const res = await cityApi.createSyndicate(item.id);
             const inviteLink = res?.data?.invite_link || "https://t.me/share/url?url=mtbank_tycoon_bot?start=synd_123";
             alert(`Отправьте инвайт-ссылку 2 друзьям!\n${inviteLink}\nПосле этого Гипермаркет (${item.width}x${item.height}) добавится вам в инвентарь!`);
-        } catch(err) {
-            alert(err?.response?.data?.error || 'Ошибка при создании синдиката');
+        } catch (err) {
+            alert(err?.response?.data?.error || 'Заблокировано. Требуется API.');
         } finally {
             setActionLoading(null);
         }
@@ -63,14 +70,14 @@ export function ShopModal({ isOpen, onClose }) {
                         {BUILDING_CATALOG.map((item) => (
                             <div key={item.id} className="bg-gray-50 border border-gray-200 rounded-2xl p-3 flex items-center justify-between shadow-inner">
                                 <div className="flex items-center gap-3">
-                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-md ${item.type === 'mega' ? 'bg-gradient-to-br from-orange-400 to-red-500' : item.type === 'commercial' ? 'bg-gradient-to-br from-blue-400 to-indigo-500' : item.type === 'residential' ? 'bg-gradient-to-br from-emerald-400 to-teal-500' : 'bg-gradient-to-br from-gray-400 to-gray-500'}`}>
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-md ${item.type === 'mega' ? 'bg-mtb-gradient-mixed' : item.type === 'commercial' ? 'bg-mtb-gradient-blue' : item.type === 'residential' ? 'bg-emerald-500' : 'bg-gray-500'}`}>
                                         {item.type === 'mega' ? <Users /> : item.type === 'commercial' ? <Landmark /> : <Hammer />}
                                     </div>
                                     <div>
                                         <p className="font-bold text-gray-900 leading-tight">{item.name}</p>
                                         <div className="text-[10px] text-gray-500 flex items-center gap-2 mt-0.5 font-bold">
                                             <span className="bg-white px-1 py-0.5 rounded shadow-sm border">Размер: {item.width}x{item.height}</span>
-                                            {item.type !== 'decor' && <span className="flex items-center gap-0.5 text-indigo-600"><MapPin size={10} /> +доход</span>}
+                                            {item.type !== 'decor' && <span className="flex items-center gap-0.5 text-mtb-blue"><MapPin size={10} /> +доход</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -79,8 +86,8 @@ export function ShopModal({ isOpen, onClose }) {
                                         {actionLoading === 'syndicate' ? <Loader2 size={14} className="animate-spin" /> : 'Синдикат'}
                                     </Button>
                                 ) : (
-                                    <Button variant="success" size="sm" onClick={() => handleBuy(item, item.type==='decor'? 50:500)} className="font-bold shadow-md shadow-emerald-200/50 relative">
-                                        {item.type==='decor'? 50:500} 🪙
+                                    <Button variant="success" size="sm" onClick={() => handleBuy(item, item.type === 'decor' ? 50 : 500)} className="font-bold shadow-md shadow-emerald-200/50 relative flex items-center justify-center gap-1">
+                                        {item.type === 'decor' ? 50 : 500} <img src="/src/assets/icons/coin.png" className="w-3 h-3" />
                                     </Button>
                                 )}
                             </div>
@@ -95,27 +102,29 @@ export function ShopModal({ isOpen, onClose }) {
                         {buildings.length === 0 && <p className="text-xs text-gray-400 italic">Сначала постройте здание</p>}
                         {buildings.map(b => {
                             const isMaxLevel = b.level >= 3;
+                            const upgradeCost = b.base_cost * (b.level + 1); // Real backend calculation logic applied to UI
                             return (
-                            <div key={b.id} className="bg-white border text-gray-800 border-gray-100 rounded-2xl p-3 flex items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-                                <div className="flex flex-col">
-                                    <span className="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">{b.name} <span className="bg-orange-100 text-orange-700 text-[10px] px-1.5 py-0.5 rounded-md ml-1 align-middle">{isMaxLevel ? 'MAX' : `Lvl ${b.level}`}</span></span>
-                                    <span className="text-xs text-gray-500 mb-1">Доход: {b.incomeRate}/час</span>
-                                    {!isMaxLevel && <span className="text-[9px] text-emerald-600 font-bold uppercase">Награда: +5 Промо🎟️</span>}
+                                <div key={b.id} className="bg-white border text-gray-800 border-gray-100 rounded-2xl p-3 flex items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                                    <div className="flex flex-col">
+                                        <span className="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">{b.name} <span className="bg-orange-100 text-orange-700 text-[10px] px-1.5 py-0.5 rounded-md ml-1 align-middle">{isMaxLevel ? 'MAX' : `Lvl ${b.level}`}</span></span>
+                                        <span className="text-xs text-gray-500 mb-1">Доход: {b.incomeRate}/час</span>
+                                        {!isMaxLevel && <span className="text-[9px] text-emerald-600 font-bold uppercase flex items-center gap-1">Награда: +5 <img src="/src/assets/icons/promocoin.png" className="w-3 h-3" /></span>}
+                                    </div>
+                                    <Button
+                                        variant={isMaxLevel ? 'secondary' : 'primary'}
+                                        size="sm"
+                                        onClick={() => handleUpgrade(b.id, upgradeCost)}
+                                        disabled={isMaxLevel || actionLoading === `upg_${b.id}`}
+                                        className={`gap-1 flex w-24 items-center justify-center ${isMaxLevel ? 'opacity-50' : ''}`}
+                                    >
+                                        {actionLoading === `upg_${b.id}` ? <Loader2 size={14} className="animate-spin" /> : isMaxLevel ? 'MAX LVL' : <><ArrowUpCircle size={14} /> {upgradeCost} <img src="/src/assets/icons/coin.png" className="w-3 h-3" /></>}
+                                    </Button>
                                 </div>
-                                <Button 
-                                    variant={isMaxLevel ? 'secondary' : 'primary'} 
-                                    size="sm" 
-                                    onClick={() => handleUpgrade(b.id)} 
-                                    disabled={isMaxLevel || actionLoading === `upg_${b.id}`}
-                                    className={`gap-1 flex w-24 justify-center ${isMaxLevel ? 'opacity-50' : ''}`}
-                                >
-                                     {actionLoading === `upg_${b.id}` ? <Loader2 size={14} className="animate-spin" /> : isMaxLevel ? 'MAX LVL' : <><ArrowUpCircle size={14} /> 200 🪙</>}
-                                </Button>
-                            </div>
-                        )})}
+                            )
+                        })}
                     </div>
                 </div>
-                
+
             </div>
         </ModalBase>
     );

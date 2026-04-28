@@ -1,11 +1,8 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-    // VITE_API_URL прокидывается из docker-compose
-    baseURL: import.meta.env.VITE_API_URL 
-        ? `${import.meta.env.VITE_API_URL}/api` 
-        : 'http://localhost:8000/api',
-    timeout: 10000, 
+    baseURL: '/api',
+    timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
     },
